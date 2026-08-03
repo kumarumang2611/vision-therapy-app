@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Signing in… — SamaSight</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      background: #05050a;
+      color: #fff;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      text-align: center;
+      padding: 40px;
+      background: #0a0a14;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.1);
+      max-width: 420px;
+      width: calc(100% - 40px);
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin: 0 0 12px;
+    }
+    p { font-size: 14px; color: #94a3b8; margin: 0 0 24px; line-height: 1.5; }
+    .sub { font-size: 11px; color: #475569; margin-top: 24px; }
+    .loader {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(233,69,96,0.1);
+      border-top-color: #e94560;
+      border-radius: 50%;
+      margin: 0 auto;
+      animation: spin 1s linear infinite;
+    }
+    .error {
+      color: #ef4444;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-top: 16px;
+    }
+    button {
+      background: #e94560;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="title">AUTHENTICATING…</h1>
+    <p id="msg">Redirecting you back to the SamaSight app.</p>
+    <div class="loader" id="loader"></div>
+    <p class="sub" id="sub">If the app doesn't open automatically, click the button below.</p>
+    <button id="retry" style="display:none">OPEN VISION THERAPY</button>
+  </div>
+
+  <script>
+    (function () {
+      // Supabase appends tokens as a URL fragment:
+      //   https://your-domain/auth-callback.html#access_token=…&refresh_token=…
+      // We forward that to the custom protocol that Electron listens for.
+      var hash = window.location.hash || '';
+      var search = window.location.search || '';
+
+      // Some flows put the error in the query string (?error=…) instead of the hash.
+      if (!hash && !search) {
+        document.getElementById('title').textContent = 'NO TOKENS FOUND';
+        document.getElementById('msg').textContent  = 'This page expects an authentication callback from Supabase. Try signing in again from the app.';
+        document.getElementById('loader').style.display = 'none';
+        return;
+      }
+
+      var deepLink = 'samasight://auth-callback' + hash + search;
+
+      function go() { window.location.href = deepLink; }
+
+      // First attempt: immediate redirect.
+      go();
+
+      // Browsers usually prompt "Open SamaSight?" — if the user declines
+      // or the prompt is suppressed, expose a manual button after ~2.5s.
+      setTimeout(function () {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('msg').textContent = 'You can close this tab and return to the SamaSight app.';
+        var btn = document.getElementById('retry');
+        btn.style.display = 'inline-block';
+        btn.addEventListener('click', go);
+      }, 2500);
+    })();
+  </script>
+</body>
+</html>
