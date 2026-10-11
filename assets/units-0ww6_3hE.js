@@ -1,0 +1,1 @@
+import"./index-Bn-z6pQ1.js";function a(r,e=8){return(r.targetSizeMm&&r.targetSizeMm>0?r.targetSizeMm:e*r.targetSize)*r.pxPerMm}function u(r){return r.targetSizeMm&&r.targetSizeMm>0?`${r.targetSizeMm.toFixed(1)} mm`:`${r.targetSize.toFixed(1)}×`}function i(r){return r.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,"").trim()}export{u as f,i as s,a as t};
